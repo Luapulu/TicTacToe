@@ -18,7 +18,7 @@ class TikTakToe:
         else:
             raise TypeError(f"Player must be type int, not {type(player)}")
 
-    def mark(self, pos, inplace=True):
+    def mark(self, pos, inplace=False):
         if self.winner is None:
             if self.board[pos] == 0:
                 try:
@@ -28,7 +28,7 @@ class TikTakToe:
                         # Other player's turn now
                         self.player *= -1
                     else:
-                        b = self.board
+                        b = self.board.copy()
                         b[pos] = self.player
 
                         p = self.player * -1
@@ -72,14 +72,15 @@ class TikTakToe:
 
         # None is returned automatically if no other condition has been met
 
-    def get_possible_moves(self):
-        return zip(*np.where(self.board == 0))
+    @property
+    def possible_moves(self):
+        return tuple(zip(*np.where(self.board == 0)))
 
     @staticmethod
     def _check_board_valid(board):
         if type(board) is np.ndarray:
             if board.shape == (3, 3):
-                if np.logical_or(abs(board) == 1, board == 0):
+                if np.logical_or(abs(board) == 1, board == 0).all():
                     return True
                 else:
                     raise ValueError("Board must contain only 1, -1 and 0")
@@ -87,3 +88,6 @@ class TikTakToe:
                 raise ValueError(f"Board must have shape (3, 3), not {board.shape}")
         else:
             raise TypeError(f"Board must be ndarray, not {type(board)}")
+
+    def __repr__(self):
+        return str(self.board)
