@@ -4,19 +4,11 @@ import numpy as np
 class TikTakToe:
     empty = np.zeros((3, 3), dtype=np.int8)
 
-    def __init__(self, board=None, player=1):
+    def __init__(self, board=None):
         if board is None:
             self.board = TikTakToe.empty
         elif self._check_board_valid(board):
             self.board = board
-
-        if type(player) is int:
-            if player in [-1, 1]:  # Player 1 is 1 and player 2 is -1
-                self.player = int(player)
-            else:
-                raise ValueError("Player must be 1 or -1")
-        else:
-            raise TypeError(f"Player must be type int, not {type(player)}")
 
     def mark(self, pos, inplace=False):
         if self.winner is None:
@@ -24,16 +16,11 @@ class TikTakToe:
                 try:
                     if inplace:
                         self.board[pos] = self.player
-
-                        # Other player's turn now
-                        self.player *= -1
                     else:
                         b = self.board.copy()
                         b[pos] = self.player
 
-                        p = self.player * -1
-
-                        return TikTakToe(board=b, player=p)
+                        return TikTakToe(board=b)
 
                 except IndexError:
                     raise IndexError(f"{pos} is outside board")
@@ -75,6 +62,16 @@ class TikTakToe:
     @property
     def possible_moves(self):
         return tuple(zip(*np.where(self.board == 0)))
+
+    @property
+    def player(self):
+        s = self.board.sum()
+        if s == 0:
+            return 1
+        elif s == 1:
+            return -1
+        else:
+            raise ValueError("Invalid board")
 
     @staticmethod
     def _check_board_valid(board):
