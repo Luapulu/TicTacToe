@@ -3,6 +3,8 @@ from TikTakToe.minimax import MiniMax
 import random
 import matplotlib.pyplot as plt
 import numpy as np
+from anytree import RenderTree
+from pprint import pprint
 
 
 def human_play(board):
@@ -16,34 +18,13 @@ def human_play(board):
     return x, y
 
 
-def random_test_bot():
-    n = 1000
-    wins = np.zeros(n)
-    for i in range(n):
-        t = TikTakToe()
-        while t.winner is None:
-            p = random.choice(t.possible_moves)
-            t.mark(p)
-        wins[i] = t.winner
-
-    plt.hist(wins)
-    plt.show()
+def bot_random(board):
+    t = TikTakToe(board)
+    pos = random.choice(t.possible_moves)
+    return pos
 
 
 t = TikTakToe()
-for _ in range(1):
-    p = random.choice(t.possible_moves)
-    t.mark(p)
-
-m = MiniMax()
-
-print(f"\nI am player {m.me}")
-print(f"Turn: player {m.root.game.player}\n")
-print(m.root.game)
-
-for i in range(1000):
-    m_test = MiniMax()
-    if not (m_test.root.game.board == TikTakToe.empty).all():
-        raise KeyboardInterrupt(f"Not the same:\n{m_test.root.game.board}")
-    else:
-        print(i)
+for i in range(200):
+    m = MiniMax(game=t)
+    print(f"{i}: {m.root.rating} (Nodes: {len(m.root.descendants)})")

@@ -1,36 +1,60 @@
 from TikTakToe.tiktaktoe import TikTakToe
-import random
+from random import shuffle
 import numpy as np
-from anytree import Node, RenderTree, AsciiStyle, LevelOrderIter
+from anytree import AnyNode, PreOrderIter, PostOrderIter
 
 
 class MiniMax:
-    def __init__(self, game=None, board=None, player=1):
+    def __init__(self, game=None):
         if isinstance(game, TikTakToe):
             self.game = game
         else:
-            self.game = TikTakToe(board=board, player=player)
+            raise TypeError(f"game must be a game of TikTakToe, not {type(game)}")
 
         self.me = self.game.player  # which player am I
-        self.root = Node("root", game=self.game)
-        self.make_tree()
+        self.root = AnyNode(pos=None)
 
-    def make_tree(self):
-        for node in LevelOrderIter(self.root, maxlevel=8):
-            name_dict = {
-                0: "draw",
-                self.me: "win",
-                -1 * self.me: "loss"
-            }
+        self.rate_dict = {}
 
-            if node.game.winner is None:
-                for pos in node.game.possible_moves:
-                    Node(name=str(pos), parent=node, game=node.game.mark(pos))
+        self.root.rating = self.rate(game=self.game, node=self.root)
+
+    def rate(self, game, node):
+        try:
+            value = self.rate_dict[str(game)]
+        except KeyError:
+            l = list(game.possible_moves)
+            shuffle(l)
+            if game.winner is not None:
+                value = game.winner
+
+            elif game.player == 1:
+                value = -1
+                for pos in l:
+                    game.mark(pos)
+                    r = self.rate(game=game, node=AnyNode(pos=pos, parent=node))
+                    game.un_mark(pos)
+
+                    value = max(value, r)
+
+                    if value == 1:
+                        break
+
             else:
-                node.name = name_dict[node.game.winner]
-                node.rating = node.game.winner
+                value = 1
+                for pos in l:
+                    game.mark(pos)
+                    r = self.rate(game=game, node=AnyNode(pos=pos, parent=node))
+                    game.un_mark(pos)
 
-        # print(RenderTree(self.root).by_attr("name"))
+                    value = min(value, r)
+
+                    if value == -1:
+                        break
+
+            self.rate_dict[str(game)] = value
+
+        node.rating = value
+        return node.rating
 
 
 if __name__ == "__main__":

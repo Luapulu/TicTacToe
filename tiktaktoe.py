@@ -8,9 +8,9 @@ class TikTakToe:
         if board is None:
             self.board = TikTakToe.empty
         elif self._check_board_valid(board):
-            self.board = board
+            self.board = board.astype(dtype=np.int8)
 
-    def mark(self, pos, inplace=False):
+    def mark(self, pos, inplace=True):
         if self.winner is None:
             if self.board[pos] == 0:
                 try:
@@ -21,11 +21,25 @@ class TikTakToe:
                         b[pos] = self.player
 
                         return TikTakToe(board=b)
-
                 except IndexError:
                     raise IndexError(f"{pos} is outside board")
             else:
                 raise IndexError(f"Board already marked at {pos}")
+
+    def un_mark(self, pos, inplace=True):
+        if self.board[pos] == -1 * self.player:
+            try:
+                if inplace:
+                    self.board[pos] = 0
+                else:
+                    b = self.board.copy()
+                    b[pos] = 0
+
+                    return TikTakToe(board=b)
+            except IndexError:
+                raise IndexError(f"{pos} is outside board")
+        else:
+            raise IndexError(f"Player {-1 * self.player} cannot un-mark board at {pos}")
 
     @property
     def winner(self):
@@ -64,21 +78,29 @@ class TikTakToe:
         return tuple(zip(*np.where(self.board == 0)))
 
     @property
+    def possible_undos(self):
+        return tuple(zip(*np.where(self.board == -1 * self.player)))
+
+    @property
     def player(self):
-        s = self.board.sum()
-        if s == 0:
-            return 1
-        elif s == 1:
-            return -1
-        else:
-            raise ValueError("Invalid board")
+        try:
+            sum_turn_dict = {
+                0: 1,
+                1: -1
+            }
+            return sum_turn_dict[self.board.sum()]
+        except KeyError:
+            raise ValueError("Invalid board: cannot determine whose turn it is")
 
     @staticmethod
     def _check_board_valid(board):
         if type(board) is np.ndarray:
             if board.shape == (3, 3):
                 if np.logical_or(abs(board) == 1, board == 0).all():
-                    return True
+                    if board.sum() in [0, 1]:
+                        return True
+                    else:
+                        raise ValueError("Invalid board: cannot determine whose turn it is")
                 else:
                     raise ValueError("Board must contain only 1, -1 and 0")
             else:
@@ -87,4 +109,13 @@ class TikTakToe:
             raise TypeError(f"Board must be ndarray, not {type(board)}")
 
     def __repr__(self):
+        return self.board.__repr__()
+
+    def __str__(self):
         return str(self.board)
+
+    def __hash__(self):
+        return hash(str(self.board))
+
+    def __eq__(self, other):
+        return isinstance(other, TikTakToe) and (self.board == other.board).all()
