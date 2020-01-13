@@ -28,3 +28,4 @@ t = TikTakToe()
 for i in range(200):
     m = MiniMax(game=t)
     print(f"{i}: {m.root.rating} (Nodes: {len(m.root.descendants)})")
+    # Test
