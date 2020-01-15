@@ -6,7 +6,7 @@ class TikTakToe:
 
     def __init__(self, board=None):
         if board is None:
-            self.board = TikTakToe.empty
+            self.board = TikTakToe.empty.copy()
         elif self._check_board_valid(board):
             self.board = board.astype(dtype=np.int8)
 
