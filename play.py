@@ -2,12 +2,14 @@ from TikTakToe.tiktaktoe import TikTakToe
 from TikTakToe.minimax import MiniMax
 import random
 import matplotlib.pyplot as plt
+import sys
 import numpy as np
 from anytree import RenderTree
 from pprint import pprint
+import time
 
 
-def human_play(board):
+def human_player(board):
     print("\n")
     print(board)
     print("\n")
@@ -20,12 +22,41 @@ def human_play(board):
 
 def bot_random(board):
     t = TikTakToe(board)
-    pos = random.choice(t.possible_moves)
+    pos = random.choice(t.zero_positions)
     return pos
 
 
-t = TikTakToe()
-for i in range(200):
-    m = MiniMax(game=t)
-    print(f"{i}: {m.root.rating} (Nodes: {len(m.root.descendants)})")
-    # Test
+def bot_minimax(board):
+    global m
+    if not isinstance(m, MiniMax):
+        m = MiniMax()
+
+    print(f"Rating: {m.rate(TikTakToe(board))}")
+
+    pos = m.best_move(board)
+    return pos
+
+
+def play_game(bot1, bot2):
+    t = TikTakToe()
+    while t.winner is None:
+        if t.player == 1:
+            pos = bot1(t.board)
+        else:
+            pos = bot2(t.board)
+        t.mark(pos)
+    return t.winner
+
+
+wins = []
+m = MiniMax()
+print(m.rate(TikTakToe()))
+
+play_game(human_player, bot_minimax)
+
+for i in range(100):
+    w = play_game(bot_random, bot_minimax)
+    wins.append(w)
+
+plt.hist(wins)
+plt.show()
