@@ -2,42 +2,38 @@ import numpy as np
 
 
 class TikTakToe:
-    empty = np.zeros((3, 3), dtype=np.int8)
-
     def __init__(self, board=None):
         if board is None:
-            self.board = TikTakToe.empty.copy()
+            self.board = np.zeros((3, 3), dtype=np.int8)
         elif self._check_board_valid(board):
             self.board = board.astype(dtype=np.int8)
 
     def mark(self, pos, inplace=True):
         if self.winner is None:
-            if self.board[pos] == 0:
-                try:
-                    if inplace:
-                        self.board[pos] = self.player
-                    else:
-                        b = self.board.copy()
-                        b[pos] = self.player
-
-                        return TikTakToe(board=b)
-                except IndexError:
-                    raise IndexError(f"{pos} is outside board")
-            else:
-                raise IndexError(f"Board already marked at {pos}")
-
-    def un_mark(self, pos, inplace=True):
-        if self.board[pos] == -1 * self.player:
-            try:
+            if pos in self.zero_positions:
                 if inplace:
-                    self.board[pos] = 0
+                    self.board[pos] = self.player
                 else:
                     b = self.board.copy()
-                    b[pos] = 0
+                    b[pos] = self.player
 
                     return TikTakToe(board=b)
-            except IndexError:
+            elif 0 > pos[0] or pos[0] >= 3 or 0 > pos[1] or pos[1] >= 3:
                 raise IndexError(f"{pos} is outside board")
+            else:
+                raise IndexError(f"board marked at {pos} already")
+
+    def un_mark(self, pos, inplace=True):
+        if pos in self.possible_undos:
+            if inplace:
+                self.board[pos] = 0
+            else:
+                b = self.board.copy()
+                b[pos] = 0
+
+                return TikTakToe(board=b)
+        elif 0 > pos[0] or pos[0] >= 3 or 0 > pos[1] or pos[1] >= 3:
+            raise IndexError(f"{pos} is outside board")
         else:
             raise IndexError(f"Player {-1 * self.player} cannot un-mark board at {pos}")
 
@@ -74,7 +70,7 @@ class TikTakToe:
         # None is returned automatically if no other condition has been met
 
     @property
-    def possible_moves(self):
+    def zero_positions(self):
         return tuple(zip(*np.where(self.board == 0)))
 
     @property
@@ -114,8 +110,3 @@ class TikTakToe:
     def __str__(self):
         return str(self.board)
 
-    def __hash__(self):
-        return hash(str(self.board))
-
-    def __eq__(self, other):
-        return isinstance(other, TikTakToe) and (self.board == other.board).all()
