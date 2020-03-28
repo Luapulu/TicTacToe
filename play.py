@@ -1,5 +1,5 @@
-from TikTakToe.tiktaktoe import TikTakToe
-from TikTakToe.minimax import MiniMax
+from TicTacToe.tictactoe import TicTacToe
+from TicTacToe.minimax import MiniMax
 import random
 import matplotlib.pyplot as plt
 import sys
@@ -21,7 +21,7 @@ def human_player(board):
 
 
 def bot_random(board):
-    t = TikTakToe(board)
+    t = TicTacToe(board)
     pos = random.choice(t.zero_positions)
     return pos
 
@@ -31,14 +31,14 @@ def bot_minimax(board):
     if not isinstance(m, MiniMax):
         m = MiniMax()
 
-    print(f"Rating: {m.rate(TikTakToe(board))}")
+    print(f"Rating: {m.rate(TicTacToe(board))}")
 
     pos = m.best_move(board)
     return pos
 
 
 def play_game(bot1, bot2):
-    t = TikTakToe()
+    t = TicTacToe()
     while t.winner is None:
         if t.player == 1:
             pos = bot1(t.board)
@@ -50,7 +50,7 @@ def play_game(bot1, bot2):
 
 wins = []
 m = MiniMax()
-print(m.rate(TikTakToe()))
+print(m.rate(TicTacToe()))
 
 play_game(human_player, bot_minimax)
 
