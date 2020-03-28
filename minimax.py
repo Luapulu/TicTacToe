@@ -1,4 +1,4 @@
-from TikTakToe.tiktaktoe import TikTakToe
+from TicTacToe.tictactoe import TicTacToe
 import numpy as np
 
 
@@ -48,7 +48,7 @@ class MiniMax:
         return value
 
     def best_move(self, board):
-        game = TikTakToe(board)
+        game = TicTacToe(board)
         pos_list = [(pos, self.rate(game.mark(pos, inplace=False))) for pos in game.zero_positions]
         return self.optimal[game.player](pos_list, key=lambda tup: tup[1])[0]
 
