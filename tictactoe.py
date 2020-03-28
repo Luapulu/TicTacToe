@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class TikTakToe:
+class TicTacToe:
     def __init__(self, board=None):
         if board is None:
             self.board = np.zeros((3, 3), dtype=np.int8)
